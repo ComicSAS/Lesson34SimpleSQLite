@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="indentation_0">0dp</dimen>
+    <dimen name="indentation_5">5dp</dimen>
+    <dimen name="indentation_25">25dp</dimen>
+    <dimen name="view_params_70">70dp</dimen>
+    <dimen name="indentation_2">2dp</dimen>
 </resources>

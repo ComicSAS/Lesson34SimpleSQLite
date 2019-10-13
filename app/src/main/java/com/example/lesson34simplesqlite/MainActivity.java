@@ -16,9 +16,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     final String LOG_TAG = "Log";
 
-    Button btnAdd, btnClear, btnRead;
-
-    EditText etName, etEmail;
+    Button btnAdd, btnRead, btnClear, btnUpd, btnDel;
+    EditText etName, etEmail, etID;
 
     DBHelper dbHelper;
 
@@ -27,17 +26,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btnAdd = (Button) findViewById(R.id.btnAdd);
+        btnAdd = findViewById(R.id.btnAdd);
         btnAdd.setOnClickListener(this);
 
-        btnRead = (Button) findViewById(R.id.btnRead);
+        btnRead = findViewById(R.id.btnRead);
         btnRead.setOnClickListener(this);
 
-        btnClear = (Button) findViewById(R.id.btnClear);
+        btnClear = findViewById(R.id.btnClear);
         btnClear.setOnClickListener(this);
 
-        etName = (EditText) findViewById(R.id.etName);
-        etEmail = (EditText) findViewById(R.id.etEmail);
+        btnUpd = findViewById(R.id.btnUpd);
+        btnUpd.setOnClickListener(this);
+
+        btnDel = findViewById(R.id.btnDel);
+        btnDel.setOnClickListener(this);
+
+        etName = findViewById(R.id.etName);
+        etEmail = findViewById(R.id.etEmail);
+        etID = findViewById(R.id.etID);
 
         // создаем объект для создания и управления версиями БД
         dbHelper = new DBHelper(this);
@@ -51,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // получаем данные из полей ввода
         String name = etName.getText().toString();
         String email = etEmail.getText().toString();
+        String id = etID.getText().toString();
 
         // подключаемся к БД
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -79,15 +86,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int nameIndex = cursor.getColumnIndex("name");
                     int emailIndex = cursor.getColumnIndex("email");
 
-do {
-    // получаем значения по номерам столбцов и пишем все в лог
-    Log.d(LOG_TAG,
-            "ID = " + cursor.getInt(idIndex) +
-                    ", name = " + cursor.getString(nameIndex) +
-                    ", email = " + cursor.getString(emailIndex));
-    // переход на следующую строку
-    // а если следующей нет (текущая - последняя), то false - выходим из цикла
-}while (cursor.moveToNext());
+                    do {
+                        // получаем значения по номерам столбцов и пишем все в лог
+                        Log.d(LOG_TAG,
+                                "ID = " + cursor.getInt(idIndex) +
+                                        ", name = " + cursor.getString(nameIndex) +
+                                        ", email = " + cursor.getString(emailIndex));
+                        // переход на следующую строку
+                        // а если следующей нет (текущая - последняя), то false - выходим из цикла
+                    } while (cursor.moveToNext());
                 } else
                     Log.d(LOG_TAG, "0 rows");
                 cursor.close();
@@ -95,8 +102,27 @@ do {
             case R.id.btnClear:
                 Log.d(LOG_TAG, "--- Clear mytable: ---");
                 // удаляем все записи
-                int clearCount = db.delete("mytable",null,null);
+                int clearCount = db.delete("mytable", null, null);
                 Log.d(LOG_TAG, "deleted rows count = " + clearCount);
+                break;
+            case R.id.btnUpd:
+                if (id.equalsIgnoreCase(""))
+                    break;
+                Log.d(LOG_TAG, "--- Update mytable: ---");
+                // подготовим значения для обновления
+                cv.put("name", name);
+                cv.put("email", email);
+                // обновляем по id
+                int updateCount = db.update("mytable", cv, "id = ?", new String[]{id});
+                Log.d(LOG_TAG, "updated rows count = " + updateCount);
+                break;
+            case R.id.btnDel:
+                if (id.equalsIgnoreCase(""))
+                    break;
+                Log.d(LOG_TAG, "--- Delete from mytable: ---");
+                // удаляем по id
+                int delCount = db.delete("mytable", "id = " + id, null);
+                Log.d(LOG_TAG, "deleted rows count = " + delCount);
                 break;
         }
         // закрываем подключение к БД
